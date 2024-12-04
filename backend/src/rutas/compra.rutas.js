@@ -7,7 +7,7 @@ import {
     updateCompra,
     getComprasDia
 
-} from '../controlador/productoControl.js'
+} from '../controlador/authCompra.js'
 
 const router = Router()
 

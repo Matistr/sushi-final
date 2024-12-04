@@ -1,4 +1,5 @@
-import PropTypes from 'prop-types';
+import { useEffect, useState } from 'react';
+import { getProductosRequest } from '../api/productosApi.js';
 import '../css/header.css';
 
 function increaseQuantity(e) {
@@ -15,7 +16,6 @@ function decreaseQuantity(e) {
     }
 }
 
-
 function addToCart(productName, price, e) {
     const promoItem = e.target.parentElement;
     const quantityInput = promoItem.querySelector('.quantity-input');
@@ -23,17 +23,15 @@ function addToCart(productName, price, e) {
 
     let cart = JSON.parse(localStorage.getItem('cart')) || [];
 
-    const existingProductIndex = cart.findIndex(item => item.nombre === productName);
+    const existingProductIndex = cart.findIndex((item) => item.nombre === productName);
 
     if (existingProductIndex >= 0) {
         cart[existingProductIndex].cantidad += quantity;
     } else {
-        const formattedPrice = parseFloat(price.replace('$', '').replace('.', ''));
-        
         cart.push({
             nombre: productName,
-            precio: formattedPrice,
-            cantidad: quantity
+            precio: price,
+            cantidad: quantity,
         });
     }
 
@@ -43,7 +41,7 @@ function addToCart(productName, price, e) {
 
 function showConfirmationMessage() {
     const messageElement = document.getElementById('confirmation-message');
-    
+
     if (messageElement) {
         messageElement.style.display = 'block';
         setTimeout(() => {
@@ -54,34 +52,49 @@ function showConfirmationMessage() {
     }
 }
 
-export function ItemCard({ titulo, img, altText, price }) {
+export function Carta() {
+    const [productos, setProductos] = useState([]);
+
+    useEffect(() => {
+        async function fetchProductos() {
+            try {
+                const response = await getProductosRequest();
+                setProductos(response.data);
+            } catch (error) {
+                console.error('Error al obtener los productos:', error);
+            }
+        }
+        fetchProductos();
+    }, []);
+
     return (
-        <div className="card">
-            <h1>{titulo}</h1>
-            <br />
-            <img src={img} className="productos" alt={altText} />
-            <h2>Precio: {price}</h2>
-            <button className="quantity-btn" onClick={decreaseQuantity}>-</button>
-            <input type="number" defaultValue="1" className="quantity-input" />
-            <button className="quantity-btn" onClick={increaseQuantity}>+</button>
-            <button
-                className="add-to-cart-btn"
-                onClick={(e) => {
-                    addToCart(titulo, price, e);
-                }}
-            >
-                Agregar al carrito
-            </button>
-            <div id="confirmation-message" style={{ display: 'none', color: 'green', marginTop: '10px' }}>
-                ¡Producto añadido al carrito!
-            </div>
+        <div className="productos-container">
+            {productos.map((producto) => (
+                <div className="card" key={producto._id}>
+                    <h1>{producto.titulo}</h1>
+                    <h2>Precio: ${producto.precio}</h2>
+                    <h3>Stock: {producto.stock}</h3>
+                    <button className="quantity-btn" onClick={decreaseQuantity}>
+                        -
+                    </button>
+                    <input type="number" defaultValue="1" className="quantity-input" />
+                    <button className="quantity-btn" onClick={increaseQuantity}>
+                        +
+                    </button>
+                    <button
+                        className="add-to-cart-btn"
+                        onClick={(e) => addToCart(producto.titulo, producto.precio, e)}
+                    >
+                        Agregar al carrito
+                    </button>
+                    <div
+                        id="confirmation-message"
+                        style={{ display: 'none', color: 'green', marginTop: '10px' }}
+                    >
+                        ¡Producto añadido al carrito!
+                    </div>
+                </div>
+            ))}
         </div>
     );
 }
-
-ItemCard.propTypes = {
-    titulo: PropTypes.string.isRequired,
-    img: PropTypes.string.isRequired,
-    altText: PropTypes.string.isRequired,
-    price: PropTypes.string.isRequired,
-};

@@ -14,10 +14,6 @@ const productoSchema = new mongoose.Schema({
         type: Number,
         required:true,
         min:0
-    },
-    fecha:{
-        type:Date,
-        default:Date.now
     }
 },{
     timestamps:true

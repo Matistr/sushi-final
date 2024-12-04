@@ -1,8 +1,8 @@
-import axios from 'axios'
+import axios from 'axios';
 
 const instancia = axios.create({
-    baseURL: 'http://localhost:4000/api',
-    withCredentials: true
-})
+    baseURL: 'http://localhost:5000/api', // Asegúrate de que este puerto esté en uso por tu servidor
+    withCredentials: true,
+});
 
-export default instancia
+export default instancia;
